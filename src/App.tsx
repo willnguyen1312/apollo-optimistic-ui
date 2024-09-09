@@ -20,7 +20,7 @@ const mutation = gql`
   }
 `;
 
-function EditablePost({ post }: { post: Post; refetch: () => void }) {
+function EditablePost({ post }: { post: Post }) {
   const [editPost, { loading }] = useMutation(mutation);
   const [isEditing, setIsEditing] = useState(false);
 
@@ -33,6 +33,7 @@ function EditablePost({ post }: { post: Post; refetch: () => void }) {
           onClick={() => {
             setIsEditing(true);
           }}
+          disabled={loading}
         >
           Edit
         </button>
@@ -51,32 +52,55 @@ function EditablePost({ post }: { post: Post; refetch: () => void }) {
             setIsEditing(false);
 
             await editPost({
+              // refetchQueries: [query],
               variables: { id: post.id, title: newTitle },
-              optimisticResponse: (_: any, context: any) => {
-                if (newTitle === "ignore") {
-                  return context.IGNORE;
-                }
+              // update: (cache, { data }) => {
+              // cache.writeQuery({
+              //   query,
+              //   data: {
+              //     posts: [
+              //       {
+              //         ...post,
+              //         title: newTitle,
+              //       },
+              //     ],
+              //   },
+              // });
+              //   const id = cache.identify(post);
+              //   cache.modify({
+              //     id,
+              //     fields: {
+              //       title() {
+              //         return newTitle;
+              //       },
+              //     },
+              //   });
+              // },
+              // optimisticResponse: (_: any, context: any) => {
+              //   if (newTitle === "ignore") {
+              //     return context.IGNORE;
+              //   }
 
-                return {
-                  editPost: {
-                    id: post.id,
-                    title: newTitle,
-                    __typename: "Post",
-                  },
-                };
-              },
+              //   return {
+              //     editPost: {
+              //       id: post.id,
+              //       title: newTitle,
+              //       __typename: "Post",
+              //     },
+              //   };
+              // },
             });
           }}
         />
       )}
 
-      {/* {loading && <p>Updating...</p>} */}
+      {loading && <p>Updating...</p>}
     </div>
   );
 }
 
 function App() {
-  const { data, refetch } = useQuery<{ posts: Post[] }>(query);
+  const { data } = useQuery<{ posts: Post[] }>(query);
 
   return (
     <main className="p-4">
@@ -84,7 +108,7 @@ function App() {
         <h1 className="text-3xl font-bold">Post</h1>
         <div className="flex flex-col">
           {data?.posts.map((post) => (
-            <EditablePost key={post.id} post={post} refetch={refetch} />
+            <EditablePost key={post.id} post={post} />
           ))}
         </div>
       </div>

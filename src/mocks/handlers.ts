@@ -25,6 +25,10 @@ let waitTime = 3000;
 export const handlers = [
   // query
   graphql.query("ListPosts", async ({ query, variables }) => {
+    // Wait 1s
+    await new Promise((resolve) => {
+      setTimeout(resolve, 250);
+    });
     const { errors, data } = await executeGraphQL({
       schema,
       source: query,
@@ -50,7 +54,7 @@ export const handlers = [
 
     await new Promise((resolve) => {
       setTimeout(resolve, waitTime);
-      // waitTime -= 2500;
+      waitTime -= 1500;
     });
 
     if (title.includes("error")) {
