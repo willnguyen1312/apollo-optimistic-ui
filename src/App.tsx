@@ -20,7 +20,13 @@ const mutation = gql`
   }
 `;
 
-function EditablePost({ post }: { post: Post }) {
+function EditablePost({
+  post,
+  refetch,
+}: {
+  post: Post;
+  refetch: ReturnType<typeof useQuery>["refetch"];
+}) {
   const [editPost, { loading }] = useMutation(mutation);
   const [isEditing, setIsEditing] = useState(false);
 
@@ -52,44 +58,10 @@ function EditablePost({ post }: { post: Post }) {
             setIsEditing(false);
 
             await editPost({
-              // refetchQueries: [query],
               variables: { id: post.id, title: newTitle },
-              // update: (cache, { data }) => {
-              // cache.writeQuery({
-              //   query,
-              //   data: {
-              //     posts: [
-              //       {
-              //         ...post,
-              //         title: newTitle,
-              //       },
-              //     ],
-              //   },
-              // });
-              //   const id = cache.identify(post);
-              //   cache.modify({
-              //     id,
-              //     fields: {
-              //       title() {
-              //         return newTitle;
-              //       },
-              //     },
-              //   });
-              // },
-              // optimisticResponse: (_: any, context: any) => {
-              //   if (newTitle === "ignore") {
-              //     return context.IGNORE;
-              //   }
-
-              //   return {
-              //     editPost: {
-              //       id: post.id,
-              //       title: newTitle,
-              //       __typename: "Post",
-              //     },
-              //   };
-              // },
             });
+
+            // refetch();
           }}
         />
       )}
@@ -100,7 +72,7 @@ function EditablePost({ post }: { post: Post }) {
 }
 
 function App() {
-  const { data } = useQuery<{ posts: Post[] }>(query);
+  const { data, refetch } = useQuery<{ posts: Post[] }>(query);
 
   return (
     <main className="p-4">
@@ -108,7 +80,7 @@ function App() {
         <h1 className="text-3xl font-bold">Post</h1>
         <div className="flex flex-col">
           {data?.posts.map((post) => (
-            <EditablePost key={post.id} post={post} />
+            <EditablePost key={post.id} post={post} refetch={refetch} />
           ))}
         </div>
       </div>

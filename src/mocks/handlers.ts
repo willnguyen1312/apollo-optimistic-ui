@@ -67,7 +67,11 @@ export const handlers = [
     post.title = title;
     return HttpResponse.json({
       data: {
-        editPost: { ...post, __typename: "Post" },
+        editPost: {
+          // id: post.id,
+          title: post.title,
+          __typename: "Post",
+        },
       },
     });
   }),
