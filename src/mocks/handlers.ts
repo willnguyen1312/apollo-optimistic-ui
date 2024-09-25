@@ -27,7 +27,7 @@ export const handlers = [
   graphql.query("ListPosts", async ({ query, variables }) => {
     // Wait 1s
     await new Promise((resolve) => {
-      setTimeout(resolve, 250);
+      setTimeout(resolve, waitTime);
     });
     const { errors, data } = await executeGraphQL({
       schema,
@@ -68,7 +68,7 @@ export const handlers = [
     return HttpResponse.json({
       data: {
         editPost: {
-          // id: post.id,
+          id: post.id,
           title: post.title,
           __typename: "Post",
         },
