@@ -1,11 +1,10 @@
-import { gql, useMutation, useQuery } from "@apollo/client";
+import { gql, useApolloClient, useMutation, useQuery } from "@apollo/client";
 import { Post } from "./types";
 import { useState } from "react";
 
 const query = gql`
   query ListPosts {
     posts {
-      id
       title
       star
     }
@@ -13,11 +12,10 @@ const query = gql`
 `;
 
 const mutation = gql`
-  mutation EditPost($id: ID!, $title: String!) {
-    editPost(id: $id, title: $title) {
-      id
+  mutation EditPost($id: ID!, $title: String!, $star: Int!) {
+    editPost(id: $id, title: $title, star: $star) {
       title
-      # star
+      star
     }
   }
 `;
@@ -29,8 +27,9 @@ function EditablePost({
   post: Post;
   refetch: ReturnType<typeof useQuery>["refetch"];
 }) {
+  const apolloClient = useApolloClient();
   const [editPost, { loading }] = useMutation(mutation, {
-    refetchQueries: [{ query }],
+    // refetchQueries: [{ query }],
   });
   const [isEditing, setIsEditing] = useState(false);
 
@@ -62,8 +61,47 @@ function EditablePost({
 
             setIsEditing(false);
 
-            await editPost({
-              variables: { id: post.id, title: newTitle },
+            // const existingPosts = apollOClient.readQuery<{ posts: Post[] }>({
+            //   query,
+            // });
+
+            const posts = [
+              {
+                ...post,
+                title: newTitle,
+              },
+            ];
+
+            // const updatedPosts = existingPosts?.posts.map((p) => {
+            //   if (p.id === post.id) {
+            //     return { ...p, title: newTitle };
+            //   }
+            //   return p;
+            // });
+
+            // apolloClient.writeQuery({
+            //   query,
+            //   data: {
+            //     posts,
+            //   },
+            // });
+
+            const result = await editPost({
+              variables: { id: post.id, title: newTitle, star: post.star },
+              // optimisticResponse: {
+              //   editPost: {
+              //     id: post.id,
+              //     title: newTitle,
+              //     __typename: "Post",
+              //   },
+              // },
+            });
+
+            apolloClient.writeQuery({
+              query,
+              data: {
+                posts: [result.data.editPost],
+              },
             });
 
             // refetch();
@@ -71,7 +109,7 @@ function EditablePost({
         />
       )}
 
-      {loading && <p>Updating...</p>}
+      {/* {loading && <p>Updating...</p>} */}
     </div>
   );
 }
@@ -85,7 +123,7 @@ function App() {
         <h1 className="text-3xl font-bold">Post</h1>
         <div className="flex flex-col">
           {data?.posts.map((post) => (
-            <EditablePost key={post.id} post={post} refetch={refetch} />
+            <EditablePost key={post.title} post={post} refetch={refetch} />
           ))}
         </div>
       </div>

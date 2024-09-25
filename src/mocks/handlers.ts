@@ -6,7 +6,6 @@ import { Post } from "../types";
 
 const schema = buildSchema(`
   type Post {
-    id: ID!
     title: String!
     star: Int!
   }
@@ -22,7 +21,7 @@ const allPosts: Post[] = Array.from({ length: 1 }, () => ({
   star: faker.number.int({ min: 1, max: 5 }),
 }));
 
-let waitTime = 3000;
+let waitTime = 2000;
 
 export const handlers = [
   // query
@@ -36,7 +35,14 @@ export const handlers = [
       source: query,
       variableValues: variables,
       rootValue: {
-        posts: Array.from(allPosts.values()),
+        posts: Array.from(allPosts.values()).map((p) => {
+          return {
+            // id: p.id,
+            title: p.title,
+            star: p.star,
+            __typename: "Post",
+          };
+        }),
       },
     });
 
@@ -44,8 +50,24 @@ export const handlers = [
   }),
   //   mutation
   graphql.mutation("EditPost", async ({ variables }) => {
-    const { id, title } = variables as Post;
+    const { id, title, star } = variables as Post;
     const post = allPosts.find((post) => post.id === id);
+
+    await new Promise((resolve) => {
+      setTimeout(resolve, waitTime);
+      waitTime -= 1500;
+    });
+
+    return HttpResponse.json({
+      data: {
+        editPost: {
+          // id: post.id,
+          title,
+          star,
+          __typename: "Post",
+        },
+      },
+    });
 
     if (!post) {
       return HttpResponse.json(
