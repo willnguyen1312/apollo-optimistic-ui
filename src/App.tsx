@@ -29,7 +29,9 @@ function EditablePost({
   post: Post;
   refetch: ReturnType<typeof useQuery>["refetch"];
 }) {
-  const [editPost, { loading }] = useMutation(mutation);
+  const [editPost, { loading }] = useMutation(mutation, {
+    refetchQueries: [{ query }],
+  });
   const [isEditing, setIsEditing] = useState(false);
 
   return (

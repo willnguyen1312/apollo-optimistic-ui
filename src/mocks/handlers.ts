@@ -71,7 +71,7 @@ export const handlers = [
     return HttpResponse.json({
       data: {
         editPost: {
-          id: post.id,
+          // id: post.id,
           title: post.title,
           star: post.star,
           __typename: "Post",
