@@ -7,6 +7,7 @@ const query = gql`
     posts {
       id
       title
+      star
     }
   }
 `;
@@ -16,6 +17,7 @@ const mutation = gql`
     editPost(id: $id, title: $title) {
       id
       title
+      # star
     }
   }
 `;
@@ -32,7 +34,8 @@ function EditablePost({
 
   return (
     <div>
-      <p>Value: {post.title}</p>
+      <p>Title: {post.title}</p>
+      <p>Star: {post.star}</p>
 
       {!isEditing && (
         <button

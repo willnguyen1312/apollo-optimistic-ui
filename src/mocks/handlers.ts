@@ -8,6 +8,7 @@ const schema = buildSchema(`
   type Post {
     id: ID!
     title: String!
+    star: Int!
   }
  
   type Query {
@@ -18,6 +19,7 @@ const schema = buildSchema(`
 const allPosts: Post[] = Array.from({ length: 1 }, () => ({
   id: faker.string.uuid(),
   title: faker.lorem.word(),
+  star: faker.number.int({ min: 1, max: 5 }),
 }));
 
 let waitTime = 3000;
@@ -65,11 +67,13 @@ export const handlers = [
     }
 
     post.title = title;
+    post.star += 1;
     return HttpResponse.json({
       data: {
         editPost: {
           id: post.id,
           title: post.title,
+          star: post.star,
           __typename: "Post",
         },
       },
