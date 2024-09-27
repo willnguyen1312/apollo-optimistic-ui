@@ -29,7 +29,7 @@ function EditablePost({
 }) {
   const apolloClient = useApolloClient();
   const [editPost, { loading }] = useMutation(mutation, {
-    // refetchQueries: [{ query }],
+    refetchQueries: [query],
   });
   const [isEditing, setIsEditing] = useState(false);
 
